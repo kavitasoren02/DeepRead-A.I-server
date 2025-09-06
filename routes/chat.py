@@ -27,9 +27,6 @@ async def chat_summary(request: Request, user_id: str = Depends(get_current_user
     extracted_text = file_data.get("extracted_text", "")
     full_text = f"{extracted_text}\n{prompt}"
 
-    # Generate AI summary
-    summary = get_summary_from_text(full_text)
-
     # Store user message
     user_doc = Record(
         sessionId=session_id,
@@ -39,6 +36,9 @@ async def chat_summary(request: Request, user_id: str = Depends(get_current_user
         timeStamp=datetime.utcnow()
     )
     records_collection.insert_one(user_doc.dict())
+
+    # Generate AI summary
+    summary = get_summary_from_text(full_text)
 
     # Store AI message
     ai_doc = Record(
@@ -82,3 +82,26 @@ async def fetch_chat_history(session_id: str, user_id: str = Depends(get_current
     ]
 
     return history
+
+@router.get("/history")
+async def fetch_history(user_id: str = Depends(get_current_user)):
+    print(user_id)
+    pipeline = [
+        {"$match": {"userId": user_id}},
+        {"$group": {"_id": "$sessionId", "chat": {"$first": "$$ROOT"}}},
+        {"$sort": {"timeStamp": -1}},
+        {"$project": {
+            "sessionId": "$_id",
+            "_id": 0,
+            "chat": {
+                **{
+                    k: {"$toString": "$chat." + k} if k == "_id" else f"$chat.{k}"
+                    for k in ["_id", "sessionId", "userId", "message", "isAIgenerated", "audioPath", "timeStamp"]
+                }
+            }
+        }}
+    ]
+
+    result = list(records_collection.aggregate(pipeline))
+
+    return result
