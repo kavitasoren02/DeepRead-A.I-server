@@ -8,7 +8,7 @@ from datetime import datetime
 router = APIRouter()
 
 # -------------------------
-# POST: Summarize & store chat, return full history
+# POST: Summarize & store chat, return latest chat pair
 # -------------------------
 @router.post("/chat/summary")
 async def chat_summary(request: Request, user_id: str = Depends(get_current_user)):
@@ -18,12 +18,12 @@ async def chat_summary(request: Request, user_id: str = Depends(get_current_user
 
     if not session_id or not prompt:
         raise HTTPException(status_code=400, detail="Missing sessionId and prompt")
-    
+
     # Fetch file content if exists
     file_data = file_collection.find_one({"session_id": session_id})
     if not file_data:
         raise HTTPException(status_code=404, detail="Session ID not found")
-    
+
     extracted_text = file_data.get("extracted_text", "")
     full_text = f"{extracted_text}\n{prompt}"
 
@@ -50,21 +50,13 @@ async def chat_summary(request: Request, user_id: str = Depends(get_current_user
     )
     records_collection.insert_one(ai_doc.dict())
 
-    # Fetch full chat history for this session
-    docs = list(records_collection.find({"sessionId": session_id}).sort("timeStamp", 1))
-    history = [
-        {
-            "sessionId": doc["sessionId"],
-            "userId": doc["userId"],
-            "message": doc["message"],
-            "isAIgenerated": doc["isAIgenerated"],
-            "timeStamp": doc["timeStamp"]
-        }
-        for doc in docs
-    ]
-
-    return history
-
+    return {
+        "sessionId": session_id,
+        "userId": ai_doc.userId,
+        "message": ai_doc.message,
+        "isAIgenerated": ai_doc.isAIgenerated,
+        "timeStamp": ai_doc.timeStamp
+    }
 
 # -------------------------
 # GET: Fetch chat history for a session
