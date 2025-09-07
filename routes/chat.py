@@ -7,9 +7,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-# -------------------------
-# POST: Summarize & store chat, return latest chat pair
-# -------------------------
+
 @router.post("/chat/summary")
 async def chat_summary(request: Request, user_id: str = Depends(get_current_user)):
     body = await request.json()
@@ -58,9 +56,6 @@ async def chat_summary(request: Request, user_id: str = Depends(get_current_user
         "timeStamp": ai_doc.timeStamp
     }
 
-# -------------------------
-# GET: Fetch chat history for a session
-# -------------------------
 @router.get("/chat/{session_id}")
 async def fetch_chat_history(session_id: str, user_id: str = Depends(get_current_user)):
     if not session_id:
