@@ -53,6 +53,7 @@ async def chat_summary(request: Request, user_id: str = Depends(get_current_user
         "userId": ai_doc.userId,
         "message": ai_doc.message,
         "isAIgenerated": ai_doc.isAIgenerated,
+        "audioPath": "",
         "timeStamp": ai_doc.timeStamp
     }
 
@@ -71,6 +72,7 @@ async def fetch_chat_history(session_id: str, user_id: str = Depends(get_current
             "userId": doc["userId"],
             "message": doc["message"],
             "isAIgenerated": doc["isAIgenerated"],
+            "audioPath": doc["audioPath"],
             "timeStamp": doc["timeStamp"]
         }
         for doc in docs
@@ -80,7 +82,6 @@ async def fetch_chat_history(session_id: str, user_id: str = Depends(get_current
 
 @router.get("/history")
 async def fetch_history(user_id: str = Depends(get_current_user)):
-    print(user_id)
     pipeline = [
         {"$match": {"userId": user_id}},
         {"$group": {"_id": "$sessionId", "chat": {"$first": "$$ROOT"}}},

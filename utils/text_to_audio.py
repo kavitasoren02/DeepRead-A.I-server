@@ -14,4 +14,4 @@ def text_to_audio(text: str):
     tts.save(output_path)
 
     print(f"Audio saved to {output_path}")
-    return output_path
+    return filename

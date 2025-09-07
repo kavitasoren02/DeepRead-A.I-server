@@ -5,6 +5,7 @@ from routes import auth
 from routes import file
 from routes import chat
 from routes import audio
+from fastapi.staticfiles import StaticFiles
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +34,9 @@ app.include_router(file.router, prefix='/api', tags=["UploadFile"])
 app.include_router(chat.router, prefix='/api', tags=["ChatSummary"])
 
 app.include_router(audio.router, prefix='/api', tags=["Audio"])
+
+# Expose audio folder as static files
+app.mount("/api/audio_files", StaticFiles(directory="audio"), name="audio_files")
 
 @app.get("/")
 def read_root():
