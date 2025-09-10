@@ -5,7 +5,10 @@ from routes import auth
 from routes import file
 from routes import chat
 from routes import audio
+from routes import contact
 from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
+load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,6 +37,8 @@ app.include_router(file.router, prefix='/api', tags=["UploadFile"])
 app.include_router(chat.router, prefix='/api', tags=["ChatSummary"])
 
 app.include_router(audio.router, prefix='/api', tags=["Audio"])
+
+app.include_router(contact.router, prefix='/api', tags=["Contact"])
 
 # Expose audio folder as static files
 app.mount("/api/audio_files", StaticFiles(directory="audio"), name="audio_files")
