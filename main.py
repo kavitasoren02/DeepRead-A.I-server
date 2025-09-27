@@ -20,7 +20,8 @@ app = FastAPI(lifespan=lifespan)
 
 origins =[
     "http://localhost:5173",
-    "http://192.168.1.2:5173"
+    "http://192.168.1.2:5173",
+    "https://deepread-ai.netlify.app/"
 ]
 
 app.add_middleware(
