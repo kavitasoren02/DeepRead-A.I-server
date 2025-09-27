@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/register")
 def register_user(user: User):
     if users_collection.find_one({"email" : user.email}):
-        raise HTTPException(status_code=400, msg="User already exsists")
+        raise HTTPException(status_code=400, detail="User already exsists")
     
     user_dict = user.dict()
     user_dict["password"] = hash_password(user.password)
