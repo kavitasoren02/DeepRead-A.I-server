@@ -42,8 +42,8 @@ def login_user(login: Login, response: Response):
         key="access_token",
         value=jwt_token,
         httponly=True,
-        secure=False,
-        samesite="Lax"
+        secure=True,
+        samesite="None"
     )
     
     return {"msg": "Login successful"}
